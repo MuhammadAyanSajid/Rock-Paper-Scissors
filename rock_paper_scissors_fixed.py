@@ -39,6 +39,11 @@ class RPSGame:
         self.target_wins = 3  # Default to best of 5 (first to 3 wins)
         self.game_over = False
 
+        # Emoji usage toggle
+        self.use_emoji = tk.BooleanVar(value=True)
+        self.emoji_checkbox = tk.Checkbutton(master, text="Use Emojis", variable=self.use_emoji)
+        self.emoji_checkbox.pack(pady=2)
+
         # Target wins selection
         self.setup_frame = tk.Frame(master)
         self.setup_frame.pack(pady=10)
@@ -65,8 +70,12 @@ class RPSGame:
         self.scissors_button = tk.Button(self.button_frame, text="Scissors", width=10, command=lambda: self.play('scissors'))
         self.scissors_button.grid(row=0, column=2, padx=5)
 
+        self.player_choice_label = tk.Label(master, text="")
+        self.player_choice_label.pack(pady=2)
+        self.computer_choice_label = tk.Label(master, text="")
+        self.computer_choice_label.pack(pady=2)
         self.result_label = tk.Label(master, text="")
-        self.result_label.pack(pady=10)
+        self.result_label.pack(pady=6)
 
         self.score_label = tk.Label(master, text="Score - You: 0, Computer: 0, Ties: 0")
         self.score_label.pack(pady=5)
@@ -83,7 +92,9 @@ class RPSGame:
             
         computer_choice = get_computer_choice()
         result = determine_winner(player_choice, computer_choice)
-        self.result_label.config(text=f"You chose: {player_choice}\nComputer chose: {computer_choice}\n{result}")
+        self.player_choice_label.config(text=f"You chose: {player_choice}")
+        self.computer_choice_label.config(text=f"Computer chose: {computer_choice}")
+        self.result_label.config(text=result)
 
         if result == "You win!":
             self.player_score += 1
@@ -96,12 +107,20 @@ class RPSGame:
         
         # Check for series winner
         if self.player_score >= self.target_wins:
-            self.winner_label.config(text=f"🎉 YOU WIN THE SERIES! ({self.target_wins} wins needed)", fg="green")
+            if self.use_emoji.get():
+                win_text = f"🎉 YOU WIN THE SERIES! ({self.target_wins} wins needed)"
+            else:
+                win_text = f"YOU WIN THE SERIES! ({self.target_wins} wins needed)"
+            self.winner_label.config(text=win_text, fg="green")
             self.status_label.config(text="Series complete! Click 'New Game' to play again.")
             self.game_over = True
             self.disable_buttons()
         elif self.computer_score >= self.target_wins:
-            self.winner_label.config(text=f"💻 COMPUTER WINS THE SERIES! ({self.target_wins} wins needed)", fg="red")
+            if self.use_emoji.get():
+                lose_text = f"💻 COMPUTER WINS THE SERIES! ({self.target_wins} wins needed)"
+            else:
+                lose_text = f"COMPUTER WINS THE SERIES! ({self.target_wins} wins needed)"
+            self.winner_label.config(text=lose_text, fg="red")
             self.status_label.config(text="Series complete! Click 'New Game' to play again.")
             self.game_over = True
             self.disable_buttons()
@@ -116,6 +135,8 @@ class RPSGame:
         self.computer_score = 0
         self.tie_count = 0
         self.game_over = False
+        self.player_choice_label.config(text="")
+        self.computer_choice_label.config(text="")
         self.result_label.config(text="")
         self.winner_label.config(text="")
         self.score_label.config(text="Score - You: 0, Computer: 0, Ties: 0")
